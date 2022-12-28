@@ -5,6 +5,7 @@ import rdkit.Chem.rdFMCS as FMCS
 import rdkit.Chem.rdChemReactions as rdChemReactions
 import rdkit.rdBase as rdBase
 import rdkit.Chem.rdmolops as rdmolops
+import functools
 import numpy as np
 from rdkit.DataStructs.cDataStructs import BulkTanimotoSimilarity
 
@@ -100,14 +101,6 @@ def reos_filter(mols, props):
     return [r[0] for r in result], [r[1] for r in result]
 
 
-def reverse(rxn):
-    rxn2 = rdChemReactions.ChemicalReaction()
-    for i in range(rxn.GetNumReactantTemplates()):
-        rxn2.AddProductTemplate(rxn.GetReactantTemplate(i))
-    for i in range(rxn.GetNumProductTemplates()):
-        rxn2.AddReactantTemplate(rxn.GetProductTemplate(i))
-    rxn2.Initialize()
-    return rxn2
 
 
 def extract(products):
@@ -149,8 +142,8 @@ def remove_dups(mols, props):
 
 
 def get_fp(mol):
-    #return AllChem.GetMorganFingerprint(mol, 2)
-    return AllChem.RDKFingerprint(mol)
+    return AllChem.GetMorganFingerprint(mol, 2)
+    #return AllChem.RDKFingerprint(mol)
 
 
 def sort_mols(mols, props, base, threshold=0):

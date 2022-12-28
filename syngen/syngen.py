@@ -6,14 +6,18 @@ from .data import get_reactions, get_blocks
 from rdkit import Chem
 from .utils import remove_dups, sort_mols, extract, flatten, atom_match
 
-def chemical_space(mol, steps=2, threshold=0.2, blocks=None, rxns=None,  use_mannifold=False,  strict=False):
+def chemical_space(mol, steps=(1, 1), threshold=0.2, blocks=None, rxns=None,  use_mannifold=None,  strict=False, samples=10):
     if type(mol) == str:
         mol = Chem.MolFromSmiles(mol)
+    if type(steps) == int:
+        steps = (0, steps)
+    if use_mannifold is None:
+        use_mannifold = os.environ.get("POSTERA_API_KEY") is not None
     if use_mannifold:
         mols, props = mannifold_retro(mol)
     else:
         mols, props = retro(mol, rxns=rxns, strict=strict)
-        for _ in range(steps - 1):
+        for _ in range(steps[0] - 1):
             to_add = []
             for m,p in zip(mols, props):
                 ms, ps = retro(m, rxns=rxns, strict=strict, start_props=p)
@@ -22,22 +26,22 @@ def chemical_space(mol, steps=2, threshold=0.2, blocks=None, rxns=None,  use_man
                 mols.extend(m)
                 props.extend(p)
         mols,props = remove_dups(mols, props)
-    for _ in range(steps):
+    for _ in range(steps[1]):
         to_add = []
         for m,p in zip(mols, props):
-            ms, ps = forward(m, blocks=blocks, rxns=rxns, threshold=threshold, strict=strict, start_props=p)
+            ms, ps = forward(m, blocks=blocks, samples=samples, rxns=rxns,
+                            threshold=threshold, strict=strict, start_props=p)
             to_add.append((ms, ps))
         for m,p in to_add:
             mols.extend(m)
             props.extend(p)
-        mols,props = remove_dups(mols, props)
+    print(mol, mols[0])
     return sort_mols(*remove_dups(mols, props), mol, threshold=threshold)
 
 def mannifold_retro(query_mol):
     # try to get the API Key
-    try:
-        api_key = os.environ.get("POSTERA_API_KEY")
-    except KeyError:
+    api_key = os.environ.get("POSTERA_API_KEY")
+    if api_key is None:
         raise RuntimeError("Please set the POSTERA_API_KEY environment variable.")
     smi = Chem.MolToSmiles(query_mol)
     response = requests.post(
@@ -59,7 +63,7 @@ def mannifold_retro(query_mol):
             s = mol["smiles"]
             mols.append(Chem.MolFromSmiles(s))
             props.append({"rxn-name": "mannifold", "rxn": "", "match": ()})
-    mols, props = remove_dups(*sort(mols, props, mol, threshold=0.2))
+    mols, props = remove_dups(*sort_mols(mols, props, mol, threshold=0.2))
     for m, p in zip(mols, props):
         match = atom_match(query_mol, m)
         p["match"] = tuple(match)
@@ -78,7 +82,7 @@ def retro(mol, threshold=0.5, strict=True, start_props=None, rxns=None):
         match = flatten(mol.GetSubstructMatches(t))
         p = br.RunReactants((mol,))
         if len(p) == 1 or (len(p) > 0 and not strict):
-            for m, s in extract(p, mol):
+            for m, s in extract(p):
                 out.append(m)
                 props.append(
                     {
@@ -93,11 +97,7 @@ def retro(mol, threshold=0.5, strict=True, start_props=None, rxns=None):
                     )
                     props[-1]["rxn"] = start_props["rxn"] + ":" + props[-1]["rxn"]
                     props[-1]["match"] = start_props["match"] + props[-1]["match"]
-    return sort_mols(
-        *remove_dups([mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props),
-        mol,
-        threshold=threshold,
-    )
+    return remove_dups([mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props)
 
 
 def forward(mol, blocks=None, rxns=None, samples=1000, threshold=0.5, strict=True, start_props=None):
@@ -150,8 +150,4 @@ def forward(mol, blocks=None, rxns=None, samples=1000, threshold=0.5, strict=Tru
                         )
                         props[-1]["rxn"] = start_props["rxn"] + ":" + props[-1]["rxn"]
                         props[-1]["match"] = start_props["match"] + props[-1]["match"]
-    return sort_mols(
-        *remove_dups([mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props),
-        mol,
-        threshold=threshold,
-    )
+    return [mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props

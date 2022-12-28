@@ -1,9 +1,24 @@
 import bz2
 import pickle
 import os
+from rdkit import rdBase
+import rdkit.Chem as Chem
+import rdkit.Chem.rdChemReactions as rdChemReactions
 
 _BLOCKS = None
 _REACTIONS = None
+
+
+def reverse(rxn):
+    with rdBase.BlockLogs():
+        rxn2 = rdChemReactions.ChemicalReaction()
+        for i in range(rxn.GetNumReactantTemplates()):
+            rxn2.AddProductTemplate(rxn.GetReactantTemplate(i))
+        for i in range(rxn.GetNumProductTemplates()):
+            rxn2.AddReactantTemplate(rxn.GetProductTemplate(i))
+        rxn2.Initialize()
+    return rxn2
+
 
 def get_reactions():
     global _REACTIONS
@@ -12,8 +27,13 @@ def get_reactions():
         import syngen.rxn_data
         import json
         reactions_path = files(syngen.rxn_data).joinpath("rxns.json")
-        with bz2.open(reactions_path, "rb") as f:
-            _REACTIONS = pickle.load(f)
+        with open(reactions_path, "r") as f:
+            data = json.load(f)
+        _REACTIONS = dict()
+        for n,s in data.items():
+            r = rdChemReactions.ReactionFromSmarts(s)
+            rr = reverse(r)
+            _REACTIONS[n] = (r, rr)
     return _REACTIONS
 
 def get_blocks():
