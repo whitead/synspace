@@ -1,0 +1,2 @@
+# syngen
+Synthesis generative model
