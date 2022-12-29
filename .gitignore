@@ -2,11 +2,13 @@
 __pycache__/
 *.py[cod]
 *$py.class
+# pickles
+# *.pb
 
 # C extensions
 *.so
 
-test-*.svg
+.vscode
 
 # Distribution / packaging
 .Python
@@ -129,3 +131,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+notebooks/*png
+notebooks/*svg

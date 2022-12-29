@@ -142,7 +142,7 @@ def remove_dups(mols, props):
 
 
 def get_fp(mol):
-    return AllChem.GetMorganFingerprint(mol, 2)
+    return AllChem.GetMorganFingerprint(mol, 2, useFeatures=True)
     # return AllChem.RDKFingerprint(mol)
 
 

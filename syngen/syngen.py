@@ -15,7 +15,8 @@ def chemical_space(
     rxns=None,
     use_mannifold=None,
     strict=False,
-    samples=10,
+    samples=100,
+    max=1000,
 ):
     if type(mol) == str:
         mol = Chem.MolFromSmiles(mol)
@@ -36,8 +37,9 @@ def chemical_space(
                 mols.extend(m)
                 props.extend(p)
         mols, props = remove_dups(mols, props)
-    for _ in range(steps[1]):
+    for i in range(steps[1]):
         to_add = []
+        print(len(mols))
         for m, p in zip(mols, props):
             ms, ps = forward(
                 m,
@@ -52,7 +54,14 @@ def chemical_space(
         for m, p in to_add:
             mols.extend(m)
             props.extend(p)
-    return sort_mols(*remove_dups(mols, props), mol, threshold=threshold)
+        # poor estimate that we can allow 1/steps *  threshold for each step
+        mols, props = sort_mols(
+            *remove_dups(mols, props),
+            mol,
+            threshold=threshold / steps[1] if i < steps[1] - 1 else threshold,
+        )
+        mols, props = mols[:max], props[:max]
+    return mols, props
 
 
 def mannifold_retro(query_mol):
@@ -82,7 +91,6 @@ def mannifold_retro(query_mol):
             props.append({"rxn-name": "mannifold", "rxn": "", "match": ()})
     if len(mols) < 2:
         raise RuntimeError("No retrosynthetic routes found.")
-    print(mols)
     mols, props = remove_dups(mols, props)
     for m, p in zip(mols, props):
         match = atom_match(query_mol, m)
