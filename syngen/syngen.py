@@ -99,6 +99,13 @@ def mannifold_retro(query_mol):
     return mols, props
 
 
+def merge_props(p0, p1):
+    if p0["rxn"] != "":
+        p1["rxn"] = p0["rxn"] + ":" + p1["rxn"]
+        p1["rxn-name"] = p0["rxn-name"] + "," + p1["rxn-name"]
+    p1["match"] = p0["match"] + p1["match"]
+
+
 def retro(mol, threshold=0.5, strict=True, start_props=None, rxns=None):
     if rxns is None:
         rxns = get_reactions()
@@ -121,11 +128,7 @@ def retro(mol, threshold=0.5, strict=True, start_props=None, rxns=None):
                     }
                 )
                 if start_props:
-                    props[-1]["rxn-name"] = (
-                        start_props["rxn-name"] + "," + props[-1]["rxn-name"]
-                    )
-                    props[-1]["rxn"] = start_props["rxn"] + ":" + props[-1]["rxn"]
-                    props[-1]["match"] = start_props["match"] + props[-1]["match"]
+                    merge_props(start_props, props[-1])
     return remove_dups([mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props)
 
 
@@ -181,10 +184,6 @@ def forward(
                             "match": match,
                         }
                     )
-                    if start_props:
-                        props[-1]["rxn-name"] = (
-                            start_props["rxn-name"] + "," + props[-1]["rxn-name"]
-                        )
-                        props[-1]["rxn"] = start_props["rxn"] + ":" + props[-1]["rxn"]
-                        props[-1]["match"] = start_props["match"] + props[-1]["match"]
+                if start_props:
+                    merge_props(start_props, props[-1])
     return [mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props

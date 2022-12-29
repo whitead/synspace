@@ -159,3 +159,12 @@ def sort_mols(mols, props, base, threshold=0):
             del p["similarity"]
     props = [dict(**props[i], similarity=np.round(M[i], 2)) for i in order]
     return [mols[i] for i in order], props
+
+
+def find_prop(smi, mols, props):
+    # canonicalize smiles
+    smi = Chem.MolToSmiles(Chem.MolFromSmiles(smi), canonical=True)
+    for m, p in zip(mols, props):
+        if Chem.MolToSmiles(m, canonical=True) == smi:
+            return p
+    return None
