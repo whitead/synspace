@@ -133,3 +133,4 @@ dmypy.json
 .pyre/
 notebooks/*png
 notebooks/*svg
+notebooks/*pb
