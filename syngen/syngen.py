@@ -6,7 +6,17 @@ from .data import get_reactions, get_blocks
 from rdkit import Chem
 from .utils import remove_dups, sort_mols, extract, flatten, atom_match
 
-def chemical_space(mol, steps=(1, 1), threshold=0.2, blocks=None, rxns=None,  use_mannifold=None,  strict=False, samples=10):
+
+def chemical_space(
+    mol,
+    steps=(1, 1),
+    threshold=0.2,
+    blocks=None,
+    rxns=None,
+    use_mannifold=None,
+    strict=False,
+    samples=10,
+):
     if type(mol) == str:
         mol = Chem.MolFromSmiles(mol)
     if type(steps) == int:
@@ -19,24 +29,31 @@ def chemical_space(mol, steps=(1, 1), threshold=0.2, blocks=None, rxns=None,  us
         mols, props = retro(mol, rxns=rxns, strict=strict)
         for _ in range(steps[0] - 1):
             to_add = []
-            for m,p in zip(mols, props):
+            for m, p in zip(mols, props):
                 ms, ps = retro(m, rxns=rxns, strict=strict, start_props=p)
                 to_add.append((ms, ps))
-            for m,p in to_add:
+            for m, p in to_add:
                 mols.extend(m)
                 props.extend(p)
-        mols,props = remove_dups(mols, props)
+        mols, props = remove_dups(mols, props)
     for _ in range(steps[1]):
         to_add = []
-        for m,p in zip(mols, props):
-            ms, ps = forward(m, blocks=blocks, samples=samples, rxns=rxns,
-                            threshold=threshold, strict=strict, start_props=p)
+        for m, p in zip(mols, props):
+            ms, ps = forward(
+                m,
+                blocks=blocks,
+                samples=samples,
+                rxns=rxns,
+                threshold=threshold,
+                strict=strict,
+                start_props=p,
+            )
             to_add.append((ms, ps))
-        for m,p in to_add:
+        for m, p in to_add:
             mols.extend(m)
             props.extend(p)
-    print(mol, mols[0])
     return sort_mols(*remove_dups(mols, props), mol, threshold=threshold)
+
 
 def mannifold_retro(query_mol):
     # try to get the API Key
@@ -63,10 +80,14 @@ def mannifold_retro(query_mol):
             s = mol["smiles"]
             mols.append(Chem.MolFromSmiles(s))
             props.append({"rxn-name": "mannifold", "rxn": "", "match": ()})
-    mols, props = remove_dups(*sort_mols(mols, props, mol, threshold=0.2))
+    if len(mols) < 2:
+        raise RuntimeError("No retrosynthetic routes found.")
+    print(mols)
+    mols, props = remove_dups(mols, props)
     for m, p in zip(mols, props):
         match = atom_match(query_mol, m)
         p["match"] = tuple(match)
+
     return mols, props
 
 
@@ -100,7 +121,15 @@ def retro(mol, threshold=0.5, strict=True, start_props=None, rxns=None):
     return remove_dups([mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props)
 
 
-def forward(mol, blocks=None, rxns=None, samples=1000, threshold=0.5, strict=True, start_props=None):
+def forward(
+    mol,
+    blocks=None,
+    rxns=None,
+    samples=1000,
+    threshold=0.5,
+    strict=True,
+    start_props=None,
+):
     if blocks is None:
         blocks = get_blocks()
     if rxns is None:

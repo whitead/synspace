@@ -9,10 +9,12 @@ import functools
 import numpy as np
 from rdkit.DataStructs.cDataStructs import BulkTanimotoSimilarity
 
+
 def flatten(s):
     if len(s) == 0:
         return s
-    return functools.reduce(lambda a,b: a + b, s)
+    return functools.reduce(lambda a, b: a + b, s)
+
 
 def moldiff(template, query):
     """Compare the two rdkit molecules.
@@ -55,7 +57,7 @@ def moldiff(template, query):
 
 
 def atom_match(template, query):
-    r = MCS.FindMCS([template, query], timeout=5)
+    r = FMCS.FindMCS([template, query], timeout=5)
     if r is None:
         return ()
     substructure = Chem.MolFromSmarts(r.smartsString)
@@ -101,8 +103,6 @@ def reos_filter(mols, props):
     return [r[0] for r in result], [r[1] for r in result]
 
 
-
-
 def extract(products):
     for p in products:
         lp = list(p)
@@ -143,7 +143,7 @@ def remove_dups(mols, props):
 
 def get_fp(mol):
     return AllChem.GetMorganFingerprint(mol, 2)
-    #return AllChem.RDKFingerprint(mol)
+    # return AllChem.RDKFingerprint(mol)
 
 
 def sort_mols(mols, props, base, threshold=0):
