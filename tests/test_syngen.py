@@ -15,7 +15,7 @@ def test_chemical_space():
 
     smi = "CC(C)c4nc(CN(C)C(=O)N[C@@H](C(C)C)C(=O)N[C@@H](Cc1ccccc1)C[C@H](O)[C@H](Cc2ccccc2)NC(=O)OCc3cncs3)cs4"
     mols, props = synspace.chemical_space(
-        smi, use_mannifold=False, steps=(2, 1), samples=25, threshold=0.5
+        smi, use_mannifold=False, steps=(2, 1), nblocks=25, threshold=0.5
     )
     assert Chem.MolToSmiles(mols[0], canonical=True) == Chem.MolToSmiles(
         Chem.MolFromSmiles(smi), canonical=True

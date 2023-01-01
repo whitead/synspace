@@ -14,9 +14,10 @@ def chemical_space(
     blocks=None,
     rxns=None,
     use_mannifold=None,
-    strict=False,
-    samples=25,
-    max=250,
+    strict=None,
+    nblocks=25,
+    num_samples=250,
+    _pbar=None,
 ):
     if type(mol) == str:
         mol = Chem.MolFromSmiles(mol)
@@ -25,28 +26,41 @@ def chemical_space(
     if use_mannifold is None:
         use_mannifold = os.environ.get("POSTERA_API_KEY") is not None
     if use_mannifold:
+        if _pbar:
+            _pbar.set_description("⚗️Synspace Retrosynthesis (Mannifold)⚗️")
         mols, props = mannifold_retro(mol)
     else:
-        mols, props = retro(mol, rxns=rxns, strict=strict)
+        if _pbar:
+            _pbar.set_description("⚗️Synspace Retrosynthesis...⚗️")
+        mols, props = retro(mol, rxns=rxns, strict=False if strict is None else strict)
         for _ in range(steps[0] - 1):
             to_add = []
             for m, p in zip(mols, props):
-                ms, ps = retro(m, rxns=rxns, strict=strict, start_props=p)
+                ms, ps = retro(
+                    m,
+                    rxns=rxns,
+                    strict=False if strict is None else strict,
+                    start_props=p,
+                )
                 to_add.append((ms, ps))
             for m, p in to_add:
                 mols.extend(m)
                 props.extend(p)
+                if _pbar:
+                    _pbar.update(len(mols))
         mols, props = remove_dups(mols, props)
+    if _pbar:
+        _pbar.set_description("⚗️Forward synthesis...⚗️")
     for i in range(steps[1]):
         to_add = []
         for m, p in zip(mols, props):
             ms, ps = forward(
                 m,
                 blocks=blocks,
-                samples=samples,
+                samples=nblocks,
                 rxns=rxns,
                 threshold=threshold,
-                strict=strict,
+                strict=True if strict is None else strict,
                 start_props=p,
             )
             to_add.append((ms, ps))
@@ -59,7 +73,9 @@ def chemical_space(
             mol,
             threshold=threshold / steps[1] if i < steps[1] - 1 else threshold,
         )
-        mols, props = mols[:max], props[:max]
+        mols, props = mols[:num_samples], props[:num_samples]
+        if _pbar:
+            _pbar.update(len(mols))
     return mols, props
 
 
@@ -86,6 +102,8 @@ def mannifold_retro(query_mol):
         for mol in route["molecules"]:
             # if not mol['isBuildingBlock']:
             s = mol["smiles"]
+            # sometimes happens?
+            s = s.replace("~", "")
             mols.append(Chem.MolFromSmiles(s))
             props.append({"rxn-name": "mannifold", "rxn": "", "match": ()})
     if len(mols) < 2:
