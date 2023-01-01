@@ -15,8 +15,8 @@ def chemical_space(
     rxns=None,
     use_mannifold=None,
     strict=False,
-    samples=100,
-    max=1000,
+    samples=25,
+    max=250,
 ):
     if type(mol) == str:
         mol = Chem.MolFromSmiles(mol)
