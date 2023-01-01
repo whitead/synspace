@@ -39,7 +39,6 @@ def chemical_space(
         mols, props = remove_dups(mols, props)
     for i in range(steps[1]):
         to_add = []
-        print(len(mols))
         for m, p in zip(mols, props):
             ms, ps = forward(
                 m,

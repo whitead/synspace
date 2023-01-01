@@ -42,7 +42,7 @@ class REOS:
         url = "https://raw.githubusercontent.com/PatWalters/rd_filters/master/rd_filters/data/alert_collection.csv"
         self.rule_path = pystow.ensure("useful_rdkit_utils", "data", url=url)
         self.rule_df = pd.read_csv(self.rule_path)
-        self.read_rules(self.rule_path, active_rules)
+        self.read_rules(active_rules)
 
     def parse_smarts(self):
         """Parse the SMARTS strings in the rules file to molecule objects and check for validity
@@ -60,7 +60,7 @@ class REOS:
         self.rule_df["pat"] = smarts_mol_list
         return smarts_are_ok
 
-    def read_rules(self, rules_file, active_rules=None):
+    def read_rules(self, active_rules=None):
         """Read a rules file
 
         :param rules_file: name of the rules file

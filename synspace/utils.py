@@ -1,7 +1,6 @@
 import rdkit.Chem as Chem
 import rdkit.Chem.AllChem as AllChem
 import rdkit.Chem.rdFMCS as FMCS
-import rdkit.Chem.rdChemReactions as rdChemReactions
 import rdkit.rdBase as rdBase
 import rdkit.Chem.rdmolops as rdmolops
 import functools

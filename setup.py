@@ -24,6 +24,7 @@ setup(
         "requests",
         "pandas",
         "pystow",
+        "skunk",
     ],
     package_data={"synspace": ["rxn_data/*.json", "rxn_data/*.bz2"]},
     test_suite="tests",
