@@ -201,6 +201,6 @@ def forward(
                             "match": match,
                         }
                     )
-                if start_props:
-                    merge_props(start_props, props[-1])
+                    if start_props:
+                        merge_props(start_props, props[-1])
     return [mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props
