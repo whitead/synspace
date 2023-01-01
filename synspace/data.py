@@ -24,31 +24,36 @@ def get_reactions():
     global _REACTIONS
     if _REACTIONS is None:
         from importlib_resources import files
-        import syngen.rxn_data
+        import synspace.rxn_data
         import json
-        reactions_path = files(syngen.rxn_data).joinpath("rxns.json")
+
+        reactions_path = files(synspace.rxn_data).joinpath("rxns.json")
         with open(reactions_path, "r") as f:
             data = json.load(f)
         _REACTIONS = dict()
-        for n,s in data.items():
+        for n, s in data.items():
             r = rdChemReactions.ReactionFromSmarts(s)
             rr = reverse(r)
             _REACTIONS[n] = (r, rr)
     return _REACTIONS
 
+
 def get_blocks():
     global _BLOCKS
     if _BLOCKS is None:
         from importlib_resources import files
-        import syngen.rxn_data
-        blocks_path = files(syngen.rxn_data).joinpath("blocks.pk.bz2")
+        import synspace.rxn_data
+
+        blocks_path = files(synspace.rxn_data).joinpath("blocks.pk.bz2")
         with bz2.open(blocks_path, "rb") as f:
             _BLOCKS = pickle.load(f)
     return _BLOCKS
 
+
 def make_blocks(reactions, smi_path):
     import tqdm
     from rdkit import Chem
+
     results = dict()
     matchers = dict()
     for n, (fr, _) in reactions.items():
@@ -69,4 +74,3 @@ def make_blocks(reactions, smi_path):
                     if x.HasSubstructMatch(m):
                         results[n][i].append(x)
     return results
-

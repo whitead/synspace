@@ -1,0 +1,6 @@
+synspace
+Copyright (c) 2022 Andrew White
+
+This product includes software develped by Pat Walters (MIT)
+https://github.com/PatWalters/useful_rdkit_utils
+Copyright (c) 2022 Pat Walters

@@ -1,6 +1,17 @@
-# syngen
+# synspace
 Synthesis generative model
 
-# TODO
+## Installation
 
-Extract REOS from useful_rdkit_utils to remove jupyter dependency
+```sh
+pip install synspace
+```
+
+## Usage
+
+
+## NOTICE
+
+This product includes software developed by Pat Walters (MIT)
+https://github.com/PatWalters/useful_rdkit_utils
+Copyright (c) 2022 Pat Walters

@@ -2,23 +2,30 @@ import os
 from glob import glob
 from setuptools import setup
 
-exec(open("syngen/version.py").read())
+exec(open("synspace/version.py").read())
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="syngen",
+    name="synspace",
     version=__version__,
     description="Generative model based on forward synthesis rules",
     author="Andrew White",
     author_email="andrew.white@rochester.edu",
-    url="https://github.com/whitead/syngen",
+    url="https://github.com/whitead/synspace",
     license="MIT",
-    packages=["syngen"],
-    install_requires=["rdkit", "tqdm", "molbloom",
-    "numpy", "importlib_resources", "requests", "useful_rdkit_utils"],
-    package_data={"syngen": ["rxn_data/*.json", "rxn_data/*.bz2"]},
+    packages=["synspace", "synspace/reos"],
+    install_requires=[
+        "rdkit",
+        "tqdm",
+        "numpy",
+        "importlib_resources",
+        "requests",
+        "pandas",
+        "pystow",
+    ],
+    package_data={"synspace": ["rxn_data/*.json", "rxn_data/*.bz2"]},
     test_suite="tests",
     long_description=long_description,
     long_description_content_type="text/markdown",

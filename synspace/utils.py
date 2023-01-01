@@ -1,4 +1,3 @@
-import useful_rdkit_utils as uru
 import rdkit.Chem as Chem
 import rdkit.Chem.AllChem as AllChem
 import rdkit.Chem.rdFMCS as FMCS
@@ -8,6 +7,7 @@ import rdkit.Chem.rdmolops as rdmolops
 import functools
 import numpy as np
 from rdkit.DataStructs.cDataStructs import BulkTanimotoSimilarity
+from .reos import REOS
 
 
 def flatten(s):
@@ -91,7 +91,7 @@ def match_cluster(mols, props, cmax=3):
     return rmol, rprop
 
 
-reos = uru.REOS()
+reos = REOS()
 
 
 def reos_filter(mols, props):

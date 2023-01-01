@@ -65,5 +65,7 @@ def draw_rxn(s, names=None):
         svgs.append(Draw.ReactionToImage(rxn, useSVG=True, subImgSize=(200, 200)))
     labels = None
     if names is not None:
+        print(names)
+        print(rxns)
         labels = names.split(",")
     return skunk.layout_svgs(svgs, labels=labels)
