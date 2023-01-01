@@ -12,6 +12,6 @@ pip install synspace
 
 ## NOTICE
 
-This product includes software developed by Pat Walters (MIT)
+This product includes software developed by Pat Walters (MIT Licensed)
 https://github.com/PatWalters/useful_rdkit_utils
 Copyright (c) 2022 Pat Walters
