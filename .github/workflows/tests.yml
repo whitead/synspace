@@ -26,11 +26,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest  build
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      env:
-        POSTERA_API_KEY: ${{ secrets.POSTERA_API_KEY }}
     - name: Install
       run: |
         pip install .
     - name: Run Test
+      env:
+        POSTERA_API_KEY: ${{ secrets.POSTERA_API_KEY }}
       run: |
          pytest tests
