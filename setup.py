@@ -26,6 +26,7 @@ setup(
         "pystow",
         "skunk",
     ],
+    extras_require={"qd": ["pyribs", "scikit-learn", "vdict"]},
     package_data={"synspace": ["rxn_data/*.json", "rxn_data/*.bz2"]},
     test_suite="tests",
     long_description=long_description,

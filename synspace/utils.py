@@ -124,6 +124,12 @@ def extract(products):
             yield lp[-1], ".".join([Chem.MolToSmiles(l) for l in lp])
 
 
+def extract_one(products):
+    for p in extract(products):
+        return p
+    return None, None
+
+
 def remove_dups(mols, props):
     if len(mols) == 0:
         return mols, props
