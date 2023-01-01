@@ -1,5 +1,6 @@
 # synspace
-Synthesis generative model
+
+This package generates a local chemical space around a given molecule using retro and forward synthesis rules. The reactions used are the 50 robust medchem reactions proposed by [Hartenfeller et al.](https://pubs.acs.org/doi/10.1021/ci200379p). The retrosynthesis is done either via [PostEra Mannifold](https://postera.ai/) if you have an API key, or by reversing the 50 robust reactions. The purchasable building blocks come from the [Purchasable Mcule supplier building block catalogs](https://mcule.com/database/). All of these things can be customized though. 
 
 ## Installation
 
@@ -9,6 +10,16 @@ pip install synspace
 
 ## Usage
 
+Generate local chemical space given a SMILES string
+```py
+mols, props = synspace.chemical_space('CCC=O')
+```
+`props` contains information like the synthesis route for the molecules. Note that all synthesis routes are relative to the given molecule (it is assumed to be synthetically feasible). 
+
+
+## Citation
+
+TODO
 
 ## NOTICE
 
