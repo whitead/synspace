@@ -4,6 +4,9 @@
 
 This package generates a local chemical space around a given molecule using retro and forward synthesis rules. The reactions used are the 50 robust medchem reactions proposed by [Hartenfeller et al.](https://pubs.acs.org/doi/10.1021/ci200379p). The retrosynthesis is done either via [PostEra Mannifold](https://postera.ai/) if you have an API key, or by reversing the 50 robust reactions. The purchasable building blocks come from the [Purchasable Mcule supplier building block catalogs](https://mcule.com/database/). All of these things can be customized though. 
 
+<img src="https://user-images.githubusercontent.com/908389/210176534-028fb745-0114-4697-aad7-bfe14f1e9360.png" alt="chemical space showing a molecule space that is predicted not to cross the blood brain barrier along with three synthetically feasible modifications" width=500>
+
+
 ## Installation
 
 ```sh
