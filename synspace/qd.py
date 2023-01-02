@@ -1,5 +1,5 @@
 from .synspace import forward, retro, mannifold_retro
-from .utils import get_fp, remove_dups, extract_one
+from .utils import get_fp, remove_dups, extract_one, flatten
 import os
 import vdict
 import numpy as np
@@ -8,13 +8,14 @@ from rdkit import Chem
 import random
 
 
-def embed_mols(mols, dims=8):
+def embed_mols(mols, extra_x, extra_d, dims=8):
     from sklearn.decomposition import PCA
     from rdkit.DataStructs.cDataStructs import BulkTanimotoSimilarity
 
     fps = [get_fp(m) for m in mols]
     M = np.array([BulkTanimotoSimilarity(f, fps) for f in fps])
     dist_mat = 1 - M
+    dist_mat = np.concatenate([dist_mat, np.array(extra_x)], axis=1)
     pca = PCA(n_components=dims)
     proj_dmat = pca.fit_transform(dist_mat)
     # ensure each column is bounded from 0 to 1
@@ -23,7 +24,7 @@ def embed_mols(mols, dims=8):
     )
     result = vdict.vdict()
     for i, m in enumerate(mols):
-        result[proj_dmat[i]] = m
+        result[proj_dmat[i]] = m, extra_d[i]
     return result
 
 
@@ -86,6 +87,7 @@ def qd_chemical_space(
         mols, props = remove_dups(mols, props)
     eretro = embed_mols(mols, dims=embed_dim)
     rblocks = reverse_blocks(blocks)
+    # need to get the extra_x, extra_d
     eblocks = embed_mols(list(rblocks.keys()), dims=embed_dim)
 
     def _simulate(x):
@@ -95,6 +97,7 @@ def qd_chemical_space(
         for i in range(steps[1]):
             x1 = x[embed_dim * (i + 1) : embed_dim * (i + 2)]
             m1 = eblocks[x1]
+            # TODO: Cannot work because random choice is not deterministic
             name, pos = random.choice(rblocks[m1])
             rxn = rxns[name][0]
             reactants = [None for _ in range(rxn.GetNumReactantTemplates())]
