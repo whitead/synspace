@@ -1,10 +1,10 @@
 import requests
-import random
+import numpy as np
 import json
 import os
 from .data import get_reactions, get_blocks
 from rdkit import Chem
-from .utils import remove_dups, sort_mols, extract, flatten, atom_match
+from .utils import remove_dups, sort_mols, extract, flatten, atom_match, reos_filter
 
 
 def chemical_space(
@@ -17,6 +17,7 @@ def chemical_space(
     strict=None,
     nblocks=25,
     num_samples=250,
+    filter=True,
     _pbar=None,
 ):
     if type(mol) == str:
@@ -73,6 +74,7 @@ def chemical_space(
             mol,
             threshold=threshold / steps[1] if i < steps[1] - 1 else threshold,
         )
+        mols, props = reos_filter(mols, props)
         mols, props = mols[:num_samples], props[:num_samples]
         if _pbar:
             _pbar.update(len(mols))
@@ -149,6 +151,13 @@ def retro(mol, threshold=0.5, strict=True, start_props=None, rxns=None):
     return remove_dups([mol] + out, [{"rxn-name": "", "rxn": "", "match": ()}] + props)
 
 
+def prob_transform(x):
+    x = x - np.min(x)
+    x = x / np.max(x)
+    p = np.exp(-x)
+    return p / np.sum(p)
+
+
 def forward(
     mol,
     blocks=None,
@@ -183,7 +192,13 @@ def forward(
                         success = False
                         break
                     selection = blocks[n][j]
-                    b = random.choice(selection)
+                    # with decreasing probability, since ordered by weight
+                    if len(blocks[n][j]) == 1:
+                        b = selection[0]
+                    else:
+                        b = np.random.choice(
+                            selection, p=prob_transform(np.arange(len(selection)))
+                        )
                     reactants.append(b)
                 else:
                     reactants.append(mol)

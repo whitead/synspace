@@ -94,11 +94,9 @@ reos = REOS()
 
 
 def reos_filter(mols, props):
-    print(len(mols))
     result = [
         (x, p) for x, p in zip(mols, props) if reos.process_mol(x) == ("ok", "ok")
     ]
-    print(len(result))
     return [r[0] for r in result], [r[1] for r in result]
 
 

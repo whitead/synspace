@@ -10,7 +10,7 @@ def draw_rxn(s, names=None):
     rxns = s.split(":")
     svgs = []
     for rxn in rxns:
-        rxn = rdChemReactions.ReactionFromSmarts(s, useSmiles=True)
+        rxn = rdChemReactions.ReactionFromSmarts(rxn, useSmiles=True)
         svgs.append(Draw.ReactionToImage(rxn, useSVG=True, subImgSize=(200, 200)))
     labels = None
     if names is not None:
