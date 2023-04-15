@@ -24,6 +24,7 @@ def chemical_space(
         mol = Chem.MolFromSmiles(mol)
     if type(steps) == int:
         steps = (0, steps)
+    mols, props = None, None
     if use_mannifold is None:
         use_mannifold = os.environ.get("POSTERA_API_KEY") is not None
     if use_mannifold:
@@ -31,10 +32,11 @@ def chemical_space(
             _pbar.set_description("⚗️Synspace Retrosynthesis (Mannifold)⚗️")
         mols, props = mannifold_retro(mol)
     else:
-        if _pbar:
+        if _pbar and steps[0] > 0:
             _pbar.set_description("⚗️Synspace Retrosynthesis...⚗️")
-        mols, props = retro(mol, rxns=rxns, strict=False if strict is None else strict)
-        for _ in range(steps[0] - 1):
+        if steps[0] > 0:
+            mols, props = retro(mol, rxns=rxns, strict=False if strict is None else strict)
+        for _ in range(steps[0]-1):
             to_add = []
             for m, p in zip(mols, props):
                 ms, ps = retro(
@@ -49,9 +51,11 @@ def chemical_space(
                 props.extend(p)
                 if _pbar:
                     _pbar.update(len(mols))
-        mols, props = remove_dups(mols, props)
+            mols, props = remove_dups(mols, props) 
     if _pbar:
         _pbar.set_description("⚗️Forward synthesis...⚗️")
+    if mols is None:
+        mols, props = [mol], [{"rxn-name": "", "rxn": "", "match": ()}]
     for i in range(steps[1]):
         to_add = []
         for m, p in zip(mols, props):
@@ -74,7 +78,8 @@ def chemical_space(
             mol,
             threshold=threshold / steps[1] if i < steps[1] - 1 else threshold,
         )
-        mols, props = reos_filter(mols, props)
+        if filter:
+            mols, props = reos_filter(mols, props)
         mols, props = mols[:num_samples], props[:num_samples]
         if _pbar:
             _pbar.update(len(mols))
