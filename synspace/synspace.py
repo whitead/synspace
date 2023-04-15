@@ -217,7 +217,7 @@ def forward(
                     props.append(
                         {
                             "rxn-name": n.replace("_", " "),
-                            "rxn": f"{s}>>{smi}",
+                            "rxn": f"{rsmi}>>{s}",
                             "match": match,
                         }
                     )
