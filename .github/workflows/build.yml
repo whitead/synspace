@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python "3.9"
       uses: actions/setup-python@v2
       with:
-        python-version: "3.9"
+        python-version: "3.13"
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -29,12 +29,10 @@ jobs:
     - name: Run Test
       run: |
          pytest tests
-      env:
-        POSTERA_API_KEY: ${{ secrets.POSTERA_API_KEY }}
     - name: Build a binary wheel and a source tarball
       run: |
         python -m build --sdist --wheel --outdir dist/ .
     - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
