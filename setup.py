@@ -23,10 +23,11 @@ setup(
         "importlib_resources",
         "requests",
         "pandas",
-        "pystow",
         "skunk",
     ],
-    package_data={"synspace": ["rxn_data/*.json", "rxn_data/*.bz2"]},
+    package_data={
+        "synspace": ["rxn_data/*.json", "rxn_data/*.bz2"],
+        "synspace.reos": ["data/*.csv"]},
     test_suite="tests",
     long_description=long_description,
     long_description_content_type="text/markdown",

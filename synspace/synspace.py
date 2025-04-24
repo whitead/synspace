@@ -24,34 +24,31 @@ def chemical_space(
         mol = Chem.MolFromSmiles(mol)
     if type(steps) == int:
         steps = (0, steps)
-    mols, props = None, None
-    if use_mannifold is None:
-        use_mannifold = os.environ.get("POSTERA_API_KEY") is not None
     if use_mannifold:
-        if _pbar:
-            _pbar.set_description("⚗️Synspace Retrosynthesis (Mannifold)⚗️")
-        mols, props = mannifold_retro(mol)
-    else:
-        if _pbar and steps[0] > 0:
-            _pbar.set_description("⚗️Synspace Retrosynthesis...⚗️")
-        if steps[0] > 0:
-            mols, props = retro(mol, rxns=rxns, strict=False if strict is None else strict)
-        for _ in range(steps[0]-1):
-            to_add = []
-            for m, p in zip(mols, props):
-                ms, ps = retro(
-                    m,
-                    rxns=rxns,
-                    strict=False if strict is None else strict,
-                    start_props=p,
-                )
-                to_add.append((ms, ps))
-            for m, p in to_add:
-                mols.extend(m)
-                props.extend(p)
-                if _pbar:
-                    _pbar.update(len(mols))
-            mols, props = remove_dups(mols, props) 
+        raise DeprecationWarning(
+            "PostEra Mannifold is deprecated and thus no longer supported in Synspace."
+        )
+    mols, props = None, None
+    if _pbar and steps[0] > 0:
+        _pbar.set_description("⚗️Synspace Retrosynthesis...⚗️")
+    if steps[0] > 0:
+        mols, props = retro(mol, rxns=rxns, strict=False if strict is None else strict)
+    for _ in range(steps[0]-1):
+        to_add = []
+        for m, p in zip(mols, props):
+            ms, ps = retro(
+                m,
+                rxns=rxns,
+                strict=False if strict is None else strict,
+                start_props=p,
+            )
+            to_add.append((ms, ps))
+        for m, p in to_add:
+            mols.extend(m)
+            props.extend(p)
+            if _pbar:
+                _pbar.update(len(mols))
+        mols, props = remove_dups(mols, props) 
     if _pbar:
         _pbar.set_description("⚗️Forward synthesis...⚗️")
     if mols is None:
@@ -84,44 +81,6 @@ def chemical_space(
         if _pbar:
             _pbar.update(len(mols))
     return mols, props
-
-
-def mannifold_retro(query_mol):
-    # try to get the API Key
-    api_key = os.environ.get("POSTERA_API_KEY")
-    if api_key is None:
-        raise RuntimeError("Please set the POSTERA_API_KEY environment variable.")
-    smi = Chem.MolToSmiles(query_mol)
-    response = requests.post(
-        "https://api.postera.ai/api/v1/retrosynthesis/",
-        headers={
-            "X-API-KEY": api_key,
-        },
-        json={
-            "smiles": smi,
-            "maxSearchDepth": 4,
-            # 'catalogs': ['generic']
-        },
-    )
-    response = json.loads(response.text)
-    mols, props = [], []
-    for route in response["routes"]:
-        for mol in route["molecules"]:
-            # if not mol['isBuildingBlock']:
-            s = mol["smiles"]
-            # sometimes happens?
-            s = s.replace("~", "")
-            mols.append(Chem.MolFromSmiles(s))
-            props.append({"rxn-name": "mannifold", "rxn": "", "match": ()})
-    if len(mols) < 2:
-        raise RuntimeError("No retrosynthetic routes found.")
-    mols, props = remove_dups(mols, props)
-    for m, p in zip(mols, props):
-        match = atom_match(query_mol, m)
-        p["match"] = tuple(match)
-
-    return mols, props
-
 
 def merge_props(p0, p1):
     if p0["rxn"] != "":

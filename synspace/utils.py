@@ -1,6 +1,6 @@
 import rdkit.Chem as Chem
-import rdkit.Chem.AllChem as AllChem
 import rdkit.Chem.rdFMCS as FMCS
+from rdkit.Chem import rdFingerprintGenerator
 import rdkit.rdBase as rdBase
 import rdkit.Chem.rdmolops as rdmolops
 import functools
@@ -8,6 +8,12 @@ import numpy as np
 from rdkit.DataStructs.cDataStructs import BulkTanimotoSimilarity
 from .reos import REOS
 
+# Create a Morgan fingerprint generator as a module-level object for efficiency
+# This is equivalent to the previous AllChem.GetMorganFingerprint(mol, 2, useFeatures=True)
+morgan_gen = rdFingerprintGenerator.GetMorganGenerator(
+    radius=2,
+    atomInvariantsGenerator=rdFingerprintGenerator.GetMorganFeatureAtomInvGen()
+)
 
 def flatten(s):
     if len(s) == 0:
@@ -139,8 +145,7 @@ def remove_dups(mols, props):
 
 
 def get_fp(mol):
-    return AllChem.GetMorganFingerprint(mol, 2, useFeatures=True)
-    # return AllChem.RDKFingerprint(mol)
+    return morgan_gen.GetSparseFingerprint(mol)
 
 
 def sort_mols(mols, props, base, threshold=0):

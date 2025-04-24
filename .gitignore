@@ -5,6 +5,8 @@ __pycache__/
 # pickles
 # *.pb
 
+**/.DS_Store
+
 # C extensions
 *.so
 
