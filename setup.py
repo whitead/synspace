@@ -27,7 +27,7 @@ setup(
     ],
     package_data={
         "synspace": ["rxn_data/*.json", "rxn_data/*.bz2"],
-        "synspace.reos": ["data/*.csv"],
+        "synspace/reos": ["data/*.csv"],
     },
     test_suite="tests",
     long_description=long_description,

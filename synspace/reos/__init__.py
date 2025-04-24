@@ -23,7 +23,7 @@
 
 import sys
 from pathlib import Path
-import importlib.resources as pkg_resources
+from importlib_resources import files
 
 import pandas as pd
 import os
@@ -41,16 +41,17 @@ class REOS:
         if active_rules is None:
             active_rules = ["Glaxo"]
 
+        import synspace.reos.data
+
         # Use the bundled alert_collection.csv file
         try:
             # For Python 3.9+
-            with pkg_resources.as_file(
-                pkg_resources.files("synspace.reos.data").joinpath(
+            rules_path = \
+                files(synspace.reos.data).joinpath(
                     "alert_collection.csv"
                 )
-            ) as path:
-                self.rule_path = path
-                self.rule_df = pd.read_csv(self.rule_path)
+            self.rule_path = rules_path
+            self.rule_df = pd.read_csv(self.rule_path)
         except (ImportError, AttributeError):
             # Fallback for older Python versions
             package_dir = os.path.dirname(os.path.abspath(__file__))
