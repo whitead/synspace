@@ -86,7 +86,7 @@ def chemical_space(
 def merge_props(p0, p1):
     if p0["rxn"] != "":
         p1["rxn"] = p0["rxn"] + ":" + p1["rxn"]
-        p1["rxn-name"] = p0["rxn-name"] + "," + p1["rxn-name"]
+        p1["rxn-name"] = p0["rxn-name"] + ";" + p1["rxn-name"]
     p1["match"] = p0["match"] + p1["match"]
 
 
