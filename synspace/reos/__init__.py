@@ -23,9 +23,10 @@
 
 import sys
 from pathlib import Path
+from importlib_resources import files
 
 import pandas as pd
-import pystow
+import os
 from rdkit import Chem
 
 
@@ -39,9 +40,21 @@ class REOS:
     def __init__(self, active_rules=None):
         if active_rules is None:
             active_rules = ["Glaxo"]
-        url = "https://raw.githubusercontent.com/PatWalters/rd_filters/master/rd_filters/data/alert_collection.csv"
-        self.rule_path = pystow.ensure("useful_rdkit_utils", "data", url=url)
-        self.rule_df = pd.read_csv(self.rule_path)
+
+        import synspace.reos.data
+
+        # Use the bundled alert_collection.csv file
+        try:
+            # For Python 3.9+
+            rules_path = files(synspace.reos.data).joinpath("alert_collection.csv")
+            self.rule_path = rules_path
+            self.rule_df = pd.read_csv(self.rule_path)
+        except (ImportError, AttributeError):
+            # Fallback for older Python versions
+            package_dir = os.path.dirname(os.path.abspath(__file__))
+            self.rule_path = os.path.join(package_dir, "data", "alert_collection.csv")
+            self.rule_df = pd.read_csv(self.rule_path)
+
         self.read_rules(active_rules)
 
     def parse_smarts(self):
