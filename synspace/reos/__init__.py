@@ -46,10 +46,7 @@ class REOS:
         # Use the bundled alert_collection.csv file
         try:
             # For Python 3.9+
-            rules_path = \
-                files(synspace.reos.data).joinpath(
-                    "alert_collection.csv"
-                )
+            rules_path = files(synspace.reos.data).joinpath("alert_collection.csv")
             self.rule_path = rules_path
             self.rule_df = pd.read_csv(self.rule_path)
         except (ImportError, AttributeError):
