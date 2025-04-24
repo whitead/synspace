@@ -40,11 +40,15 @@ class REOS:
     def __init__(self, active_rules=None):
         if active_rules is None:
             active_rules = ["Glaxo"]
-            
+
         # Use the bundled alert_collection.csv file
         try:
             # For Python 3.9+
-            with pkg_resources.as_file(pkg_resources.files("synspace.reos.data").joinpath("alert_collection.csv")) as path:
+            with pkg_resources.as_file(
+                pkg_resources.files("synspace.reos.data").joinpath(
+                    "alert_collection.csv"
+                )
+            ) as path:
                 self.rule_path = path
                 self.rule_df = pd.read_csv(self.rule_path)
         except (ImportError, AttributeError):
@@ -52,7 +56,7 @@ class REOS:
             package_dir = os.path.dirname(os.path.abspath(__file__))
             self.rule_path = os.path.join(package_dir, "data", "alert_collection.csv")
             self.rule_df = pd.read_csv(self.rule_path)
-                
+
         self.read_rules(active_rules)
 
     def parse_smarts(self):

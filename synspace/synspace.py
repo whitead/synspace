@@ -33,7 +33,7 @@ def chemical_space(
         _pbar.set_description("⚗️Synspace Retrosynthesis...⚗️")
     if steps[0] > 0:
         mols, props = retro(mol, rxns=rxns, strict=False if strict is None else strict)
-    for _ in range(steps[0]-1):
+    for _ in range(steps[0] - 1):
         to_add = []
         for m, p in zip(mols, props):
             ms, ps = retro(
@@ -48,7 +48,7 @@ def chemical_space(
             props.extend(p)
             if _pbar:
                 _pbar.update(len(mols))
-        mols, props = remove_dups(mols, props) 
+        mols, props = remove_dups(mols, props)
     if _pbar:
         _pbar.set_description("⚗️Forward synthesis...⚗️")
     if mols is None:
@@ -81,6 +81,7 @@ def chemical_space(
         if _pbar:
             _pbar.update(len(mols))
     return mols, props
+
 
 def merge_props(p0, p1):
     if p0["rxn"] != "":

@@ -12,8 +12,9 @@ from .reos import REOS
 # This is equivalent to the previous AllChem.GetMorganFingerprint(mol, 2, useFeatures=True)
 morgan_gen = rdFingerprintGenerator.GetMorganGenerator(
     radius=2,
-    atomInvariantsGenerator=rdFingerprintGenerator.GetMorganFeatureAtomInvGen()
+    atomInvariantsGenerator=rdFingerprintGenerator.GetMorganFeatureAtomInvGen(),
 )
+
 
 def flatten(s):
     if len(s) == 0:
